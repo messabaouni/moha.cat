@@ -1,6 +1,7 @@
 
 from pathlib import Path
 from datetime import datetime
+import os
 import subprocess
 import unicodedata
 import hashlib
@@ -13,11 +14,13 @@ import sys
 # CONFIGURACIO
 # ==========================================================
 
-CARPETA_ORIGEN = Path(
-    "/mnt/c/Users/Home/Desktop/Mecanuscritos/0. Publicats"
+CARPETA_ORIGEN = (
+    Path(os.environ["MOHA_ODT_SOURCE"]).expanduser()
+    if os.environ.get("MOHA_ODT_SOURCE")
+    else None
 )
 
-REPO = Path.home() / "projects" / "moha.cat"
+REPO = Path(__file__).resolve().parents[1]
 
 CARPETA_DESTI = REPO / "src/content/escrits"
 CARPETA_IMATGES = REPO / "public/images/odt"
@@ -204,6 +207,10 @@ def main():
     print("\n====================================")
     print("      IMPORTADOR ODT - MOHA.CAT")
     print("====================================\n")
+
+    if CARPETA_ORIGEN is None:
+        print("Configura la variable d'entorn MOHA_ODT_SOURCE amb la carpeta dels fitxers ODT.")
+        sys.exit(1)
 
     if not CARPETA_ORIGEN.is_dir():
         print(f"No existeix la carpeta: {CARPETA_ORIGEN}")
