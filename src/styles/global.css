@@ -7,7 +7,7 @@ a:hover { color:var(--ink); }
 .page { width:min(100% - 48px,760px); margin:0 auto; }
 .site-header { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:30px 0 26px; border-bottom:1px solid var(--line); font-family:var(--mono); font-size:12px; }
 .wordmark { color:var(--ink); font-size:15px; letter-spacing:-.7px; text-decoration:none; }
-.wordmark span { color:#a26b43; }
+.wordmark span,.intro h1 em { color:#a26b43; }
 nav { display:flex; flex-wrap:wrap; gap:20px; }
 nav a { color:var(--muted); text-decoration:none; } nav a:hover { color:var(--ink); }
 .intro { padding:86px 0 78px; max-width:650px; }
@@ -24,13 +24,15 @@ h2 { font-size:21px; font-weight:400; line-height:1.4; margin:0; }
 .section-body p { margin:0 0 16px; } .section-body p:last-child { margin-bottom:0; }
 .link-list,.post-list { list-style:none; padding:0; margin:20px 0; }
 .link-list li,.post-list li { display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:10px 0; border-bottom:1px dotted var(--line); }
+.post-list li::before { content:"•"; color:#a26b43; }
+.post-list li a { flex:1; }
 .item-meta,time { color:var(--muted); white-space:nowrap; }
 .social-list { display:flex; flex-wrap:wrap; gap:9px 22px; }
 .site-footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px 20px; color:var(--muted); padding:27px 0 38px; border-top:1px solid var(--line); }
 .site-footer a { color:var(--muted); }
 .page-title { padding:72px 0 58px; }
 .page-title h1 { margin-bottom:18px; }
-.archive-section { padding-top:30px; }
+.archive-section { display:block; padding:30px 0 55px; border-top:1px solid var(--line); }
 .post-list { margin-top:0; }
 .post-list li a { font-size:16px; }
 .post-description { color:var(--muted); font-size:13px; margin:3px 0 0 !important; }

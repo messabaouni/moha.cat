@@ -2,23 +2,17 @@
 import MainLayout from '../layouts/MainLayout.astro';
 import { getCollection } from 'astro:content';
 
-const [escrits, lectures, projectes] = await Promise.all([
-  getCollection('escrits', ({ data }) => !data.draft),
-  getCollection('lectures', ({ data }) => !data.draft),
-  getCollection('projectes', ({ data }) => !data.draft),
-]);
-const recents = [...escrits].sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+const escrits = (await getCollection('escrits', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
 ---
-<MainLayout title="Moha — moha.cat" description="El web personal d'en Moha, a Barcelona.">
+<MainLayout title="Moha" description="Dades, lectures i escrits de Moha, a Barcelona.">
   <section class="intro">
-    <p class="eyebrow">WEB PERSONAL · BARCELONA</p>
-    <h1>Hola, soc en <em>Moha</em>.</h1>
+    <h1>Hola, sóc en <em>Moha</em>.</h1>
     <p class="lead">Treballo amb dades, estadística i tecnologia. Fora de la feina, m'interessen els llibres, la música, la història i els petits detalls de la vida quotidiana.</p>
-    <p class="intro-links"><a href="#sobre-mi">Una mica més sobre mi</a><span>·</span><a href="/escrits/">Coses que he escrit</a></p>
   </section>
 
   <section id="sobre-mi" class="section">
-    <div class="section-heading"><span class="section-number">01</span><h2>Sobre mi</h2></div>
+    <div class="section-heading"><h2>Sobre mi</h2></div>
     <div class="section-body">
       <p>Soc científic de dades i visc a Barcelona. M'he format en economia, estadística i recerca operativa. M'agrada fer servir mètodes quantitatius per entendre problemes complexos i trobar maneres útils de treballar amb les dades.</p>
       <p>Fora de la feina, dedico temps a llegir, escoltar música, aprendre a tocar el llaüt i recollir pensaments que, de vegades, acaben convertits en assajos, apunts o relats.</p>
@@ -26,30 +20,14 @@ const recents = [...escrits].sort((a, b) => b.data.date.valueOf() - a.data.date.
   </section>
 
   <section class="section">
-    <div class="section-heading"><span class="section-number">02</span><h2>Escrits recents</h2></div>
+    <div class="section-heading"><h2>Escrits recents</h2></div>
     <div class="section-body">
-      {recents.length > 0 ? (
+      {escrits.length > 0 ? (
         <ul class="post-list">
-          {recents.map((post) => <li><a href={`/escrits/${post.id}/`}>{post.data.title}</a><time>{post.data.date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</time></li>)}
+          {escrits.map((post) => <li><a href={`/escrits/${post.id}/`}>{post.data.title}</a><time>{post.data.date.toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</time></li>)}
         </ul>
       ) : <p class="muted">Els primers escrits apareixeran aquí quan els publiquis.</p>}
       <p><a href="/escrits/">Tots els escrits →</a></p>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="section-heading"><span class="section-number">03</span><h2>Explora</h2></div>
-    <div class="section-body">
-      <ul class="link-list">
-        <li><a href="/escrits/">Escrits</a><span class="item-meta">{escrits.length} publicacions</span></li>
-        <li><a href="/lectures/">Lectures</a><span class="item-meta">{lectures.length} notes</span></li>
-        <li><a href="/projectes/">Projectes</a><span class="item-meta">{projectes.length} projectes</span></li>
-      </ul>
-      <p class="social-list">
-        <a href="https://www.linkedin.com/" rel="me">LinkedIn</a>
-        <a href="https://github.com/" rel="me">GitHub</a>
-        <a href="mailto:hello@moha.cat">Correu electrònic</a>
-      </p>
     </div>
   </section>
 </MainLayout>

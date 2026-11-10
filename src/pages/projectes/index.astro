@@ -5,7 +5,7 @@ const posts = (await getCollection('projectes', ({ data }) => !data.draft)).sort
 ---
 <MainLayout title="Projectes — Moha" description="Projectes personals i professionals.">
   <section class="page-title"><p class="eyebrow">FEINA I CURIOSITAT</p><h1>Projectes</h1><p class="lead">Projectes, experiments i coses que vaig construint.</p></section>
-  <section class="section archive-section"><div class="section-heading"><span class="section-number">{String(posts.length).padStart(2,'0')}</span><h2>Projectes</h2></div><div class="section-body">
+  <section class="archive-section" aria-label="Llista de projectes"><div class="section-body">
   {posts.length ? <ul class="post-list">{posts.map((post)=><li><div><a href={`/projectes/${post.id}/`}>{post.data.title}</a>{post.data.description && <p class="post-description">{post.data.description}</p>}</div><time>{post.data.date.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'})}</time></li>)}</ul> : <p class="muted">Encara no hi ha cap projecte publicat.</p>}
   </div></section>
 </MainLayout>
