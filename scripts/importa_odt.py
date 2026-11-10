@@ -237,26 +237,7 @@ def main():
 
     print(f"Documents trobats: {len(documents)}")
 
-    # Comprovar que no hi ha canvis preparats prèviament
-    resultat = executar(
-        ["git", "diff", "--cached", "--quiet"],
-        "Comprovació dels canvis preparats a Git"
-    ) if False else subprocess.run(
-        ["git", "diff", "--cached", "--quiet"],
-        cwd=REPO
-    )
-
-    if resultat.returncode != 0:
-        print(
-            "\nHi ha canvis preparats a Git. "
-            "Publicació cancel·lada per evitar barrejar canvis."
-        )
-        return
-
     articles_modificats = []
-
-    # Guardar l'estat anterior per poder recuperar-lo si cal
-    estats_anteriors = dict(estats)
 
     try:
         for odt in documents:
@@ -272,41 +253,10 @@ def main():
         # Actualitzar l'historial
         desar_estats(estats)
 
-        fitxers = [
-            str(article.relative_to(REPO))
-            for article in articles_modificats
-        ]
-
-        fitxers.append(
-            str(FITXER_ESTATS.relative_to(REPO))
-        )
-
-        # Afegir només els fitxers generats per l'importador
-        executar(
-            ["git", "add", "--", *fitxers],
-            "Afegir articles a Git"
-        )
-
-        executar(
-            [
-                "git",
-                "commit",
-                "-m",
-                f"Importar/actualitzar {len(articles_modificats)} article(s)"
-            ],
-            "Crear commit"
-        )
-
-        executar(
-            ["git", "push"],
-            "Pujar els canvis a GitHub"
-        )
-
         print("\n====================================")
-        print("PUBLICACIO COMPLETADA")
+        print("CONVERSIO COMPLETADA")
         print(f"Articles processats: {len(articles_modificats)}")
-        print("GitHub ha rebut els canvis.")
-        print("Cloudflare iniciarà el desplegament.")
+        print("Els fitxers són locals. Revisa'ls abans d'afegir-los a Git.")
         print("====================================\n")
 
     except Exception as error:
@@ -314,9 +264,7 @@ def main():
         print(
             "Revisa Git amb: git status"
         )
-        print(
-            "Si cal, restaura l'historial abans de tornar-ho a provar."
-        )
+        print("Revisa els fitxers generats abans de tornar-ho a provar.")
         sys.exit(1)
 
 
