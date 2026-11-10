@@ -1,0 +1,11 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { getCollection } from 'astro:content';
+const posts = (await getCollection('lectures', ({ data }) => !data.draft)).sort((a,b) => b.data.date.valueOf()-a.data.date.valueOf());
+---
+<MainLayout title="Lectures — Moha" description="Llibres i notes de lectura.">
+  <section class="page-title"><p class="eyebrow">LLIBRES I IDEES</p><h1>Lectures</h1><p class="lead">Llibres llegits, llibres pendents i algunes notes al marge.</p></section>
+  <section class="section archive-section"><div class="section-heading"><span class="section-number">{String(posts.length).padStart(2,'0')}</span><h2>Quadern de lectura</h2></div><div class="section-body">
+  {posts.length ? <ul class="post-list">{posts.map((post)=><li><div><a href={`/lectures/${post.id}/`}>{post.data.title}</a>{post.data.description && <p class="post-description">{post.data.description}</p>}</div><time>{post.data.date.toLocaleDateString('ca-ES',{day:'numeric',month:'short',year:'numeric'})}</time></li>)}</ul> : <p class="muted">Encara no hi ha cap nota de lectura.</p>}
+  </div></section>
+</MainLayout>

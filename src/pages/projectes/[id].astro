@@ -1,0 +1,13 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { getCollection, render } from 'astro:content';
+export async function getStaticPaths() {
+  const posts = await getCollection('projectes', ({ data }) => !data.draft);
+  return posts.map((post) => ({ params: { id: post.id }, props: { post } }));
+}
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+<MainLayout title={`${post.data.title} — Projectes`} description={post.data.description ?? post.data.title}>
+  <article class="article"><a class="back-link" href="/projectes/">← Tots els projectes</a><p class="eyebrow">{post.data.date.toLocaleDateString('ca-ES',{day:'numeric',month:'long',year:'numeric'})}</p><h1>{post.data.title}</h1>{post.data.description && <p class="lead article-lead">{post.data.description}</p>}<div class="prose"><Content /></div></article>
+</MainLayout>
