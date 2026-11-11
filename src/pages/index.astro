@@ -17,7 +17,7 @@ const actualitzacions = (
 )
   .flat()
   .sort(byDateDesc)
-  .slice(0, 3);
+  .slice(0, 10);
 ---
 <MainLayout title="Moha" description="Dades, lectures i escrits de Moha, a Barcelona.">
   <section class="intro">
@@ -34,7 +34,7 @@ const actualitzacions = (
     <div class="section-body">
       {actualitzacions.length > 0 ? (
         <ul class="post-list">
-          {actualitzacions.map((item) => <li><a href={item.href}>{item.title}</a><span>{item.seccio}</span><time>{formatDate(item.data.date)}</time></li>)}
+          {actualitzacions.map((item) => <li><a class="recently-title" href={item.href}>{item.title}</a><span>{item.seccio}</span><time>{formatDate(item.data.date)}</time></li>)}
         </ul>
       ) : <p class="muted">Les últimes publicacions apareixeran aquí.</p>}
     </div>
