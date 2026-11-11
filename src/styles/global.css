@@ -24,8 +24,7 @@ h2 { font-size:21px; font-weight:400; line-height:1.4; margin:0; }
 .section-body p { margin:0 0 16px; } .section-body p:last-child { margin-bottom:0; }
 .link-list,.post-list { list-style:none; padding:0; margin:20px 0; }
 .link-list li,.post-list li { display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:10px 0; border-bottom:1px dotted var(--line); }
-.post-list li::before { content:"•"; color:#a26b43; }
-.post-list li a { flex:1; }
+.post-list li > a,.post-list li > div { flex:1; min-width:0; }
 .item-meta,time { color:var(--muted); white-space:nowrap; }
 .social-list { display:flex; flex-wrap:wrap; gap:9px 22px; }
 .site-footer { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px 20px; color:var(--muted); padding:27px 0 38px; border-top:1px solid var(--line); }
