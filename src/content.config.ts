@@ -23,4 +23,9 @@ const projectes = defineCollection({
   schema,
 });
 
-export const collections = { escrits, lectures, projectes };
+const miscellania = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/miscellania' }),
+  schema,
+});
+
+export const collections = { escrits, lectures, projectes, miscellania };
