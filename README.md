@@ -7,7 +7,7 @@ Web personal en català, construïda amb Astro. Els continguts s'escriuen en fit
 - `src/content/escrits/` — articles, assajos, relats i apunts.
 - `src/content/lectures/` — notes sobre llibres i lectures.
 - `src/content/projectes/` — projectes personals i professionals.
-- `src/content/miscellania/` — fotografies, música, vídeos i enllaços.
+- `src/content/miscellania/` — notes breus estil «tuit» (sense títol), que es mostren en un flux a `/miscel-lania/`.
 - `public/images/` — imatges que pots inserir als articles.
 
 ## Estructura del codi
@@ -29,7 +29,7 @@ Per escriure i publicar sense tocar codi ni git:
 python3 scripts/editor.py
 ```
 
-Obre `http://127.0.0.1:8765`. Des d'allà pots crear i editar entrades, marcar-les com a esborrany, pujar imatges i prémer **Publicar al web**, que fa `commit`, `pull --rebase` i `push` de `src/content` i `public/images`. Només necessita Python 3 i `git` configurat amb accés al repositori. Les entrades noves es creen com a esborrany. Els esborranys es desen a `drafts/` (ignorada per git), per tant no es pugen a GitHub fins que desmarques «Esborrany» i les publiques.
+Obre `http://127.0.0.1:8765`. Des d'allà pots crear i editar entrades, marcar-les com a esborrany, pujar imatges i prémer **Publicar al web**, que fa `commit`, `pull --rebase` i `push` de `src/content` i `public/images`. A la pàgina principal hi ha una **Nota ràpida** per a Miscel·lània, que funciona com un «tuit» personal: escrius un text breu (amb imatge opcional), prems **Publicar ara** i apareix al flux de `/miscel-lania/`, sense títol i amb data i hora. Només necessita Python 3 i `git` configurat amb accés al repositori. Les entrades noves es creen com a esborrany. Els esborranys es desen a `drafts/` (ignorada per git), per tant no es pugen a GitHub fins que desmarques «Esborrany» i les publiques.
 
 ## Crear un article
 

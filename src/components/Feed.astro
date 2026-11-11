@@ -1,0 +1,19 @@
+---
+import { render } from 'astro:content';
+import { formatDateTime } from '../lib/content';
+
+const { posts, empty } = Astro.props;
+const entries = await Promise.all(
+  posts.map(async (post) => ({ post, Content: (await render(post)).Content })),
+);
+---
+{entries.length ? (
+  <div class="feed">
+    {entries.map(({ post, Content }) => (
+      <article class="note" id={post.id}>
+        <a class="note-date" href={`#${post.id}`}><time>{formatDateTime(post.data.date)}</time></a>
+        <div class="prose"><Content /></div>
+      </article>
+    ))}
+  </div>
+) : <p class="muted">{empty}</p>}

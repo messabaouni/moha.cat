@@ -39,12 +39,16 @@ export const sections = {
     name: 'Miscel·lània',
     listLabel: 'Llista de miscel·lània',
     eyebrow: 'DE TOT UN POC',
-    lead: 'Fotografies, música que escolto, vídeos i enllaços.',
+    feed: true,
+    lead: 'Pensaments breus, fotografies, música que escolto i enllaços.',
     description: 'Fotografia i música de Moha.',
     backLabel: 'Tota la miscel·lània',
     empty: 'Aviat hi haurà coses per aquí.',
   },
 } as const satisfies Record<string, { collection: Collection; [k: string]: unknown }>;
+
+// Seccions que es mostren com un flux de notes curtes, sense pàgina per entrada.
+export const isFeed = (section: string) => section === 'miscel-lania';
 
 export type SectionKey = keyof typeof sections;
 export const sectionKeys = Object.keys(sections) as SectionKey[];
@@ -56,6 +60,17 @@ export async function getPublished(section: SectionKey) {
   const posts = await getCollection(sections[section].collection, ({ data }) => !data.draft);
   return posts.sort(byDateDesc);
 }
+
+export const formatDateTime = (date: Date) =>
+  date.toLocaleString('ca-ES', {
+    day: 'numeric', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid',
+  });
+
+export const excerpt = (text = '', max = 70) => {
+  const plain = text.replace(/!\[[^\]]*\]\([^)]*\)/g, '').replace(/[#*_>`\[\]]/g, '').replace(/\s+/g, ' ').trim();
+  return plain.length > max ? `${plain.slice(0, max).trimEnd()}…` : plain || 'Nota';
+};
 
 export const formatDate = (date: Date, month: 'long' | 'short' = 'long') =>
   date.toLocaleDateString('ca-ES', { day: 'numeric', month, year: 'numeric' });

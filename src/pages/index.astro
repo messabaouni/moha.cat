@@ -1,12 +1,17 @@
 ---
 import MainLayout from '../layouts/MainLayout.astro';
 import About from '../components/About.astro';
-import { sections, sectionKeys, getPublished, byDateDesc, formatDate } from '../lib/content';
+import { sections, sectionKeys, isFeed, getPublished, byDateDesc, formatDate, excerpt } from '../lib/content';
 
 const actualitzacions = (
   await Promise.all(
     sectionKeys.map(async (ruta) =>
-      (await getPublished(ruta)).map((item) => ({ ...item, ruta, seccio: sections[ruta].name })),
+      (await getPublished(ruta)).map((item) => ({
+        ...item,
+        seccio: sections[ruta].name,
+        title: item.data.title ?? excerpt(item.body),
+        href: isFeed(ruta) ? `/${ruta}/#${item.id}` : `/${ruta}/${item.id}/`,
+      })),
     ),
   )
 )
@@ -29,7 +34,7 @@ const actualitzacions = (
     <div class="section-body">
       {actualitzacions.length > 0 ? (
         <ul class="post-list">
-          {actualitzacions.map((item) => <li><a href={`/${item.ruta}/${item.id}/`}>{item.data.title}</a><span>{item.seccio}</span><time>{formatDate(item.data.date)}</time></li>)}
+          {actualitzacions.map((item) => <li><a href={item.href}>{item.title}</a><span>{item.seccio}</span><time>{formatDate(item.data.date)}</time></li>)}
         </ul>
       ) : <p class="muted">Les últimes publicacions apareixeran aquí.</p>}
     </div>

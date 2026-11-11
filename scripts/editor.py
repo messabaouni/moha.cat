@@ -11,7 +11,7 @@ import re
 import subprocess
 import unicodedata
 import webbrowser
-from datetime import date
+from datetime import date, datetime
 from email.parser import BytesParser
 from email.policy import HTTP
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -58,11 +58,10 @@ def read_post(path):
 
 
 def write_post(path, meta, body):
-    lines = [
-        "---",
-        f"title: {json.dumps(meta['title'], ensure_ascii=False)}",
-        f"date: {meta['date']}",
-    ]
+    lines = ["---"]
+    if meta["title"]:
+        lines.append(f"title: {json.dumps(meta['title'], ensure_ascii=False)}")
+    lines.append(f"date: {meta['date']}")
     if meta["description"]:
         lines.append(f"description: {json.dumps(meta['description'], ensure_ascii=False)}")
     lines.append(f"draft: {'true' if meta['draft'] else 'false'}")
@@ -89,6 +88,12 @@ def save_post(section, slug, meta, body):
     target, other = (draft, published) if meta["draft"] else (published, draft)
     write_post(target, meta, body)
     other.unlink(missing_ok=True)
+
+
+def note_excerpt(text, limit=60):
+    plain = re.sub(r"!\[[^\]]*\]\([^)]*\)", "[imatge]", text)
+    plain = re.sub(r"\s+", " ", plain).strip()
+    return plain[:limit] + ("…" if len(plain) > limit else "")
 
 
 def git(*args):
@@ -139,7 +144,7 @@ def page(title, body, msg=None, ok=True):
 
 
 def index_page(msg=None, ok=True):
-    out = ['<p><a href="/edit">+ Nou contingut</a></p>']
+    out = ['<p><a href="/edit">+ Nou contingut</a></p>', note_form_html()]
     for section, label in SECTIONS.items():
         posts = sorted(
             [*(CONTENT / section).glob("*.md"), *(DRAFTS / section).glob("*.md")],
@@ -147,7 +152,9 @@ def index_page(msg=None, ok=True):
         )
         items = []
         for p in posts:
-            meta, _ = read_post(p)
+            meta, text = read_post(p)
+            if section == "miscellania":
+                meta["title"] = f"{str(meta['date'])[:16].replace('T', ' ')} — {note_excerpt(text)}"
             tag = ' <span class="tag">esborrany</span>' if meta["draft"] else ""
             items.append(
                 f'<li><a href="/edit?section={section}&slug={quote(p.stem)}">'
@@ -165,6 +172,39 @@ def index_page(msg=None, ok=True):
     return page("Editor", "".join(out), msg, ok)
 
 
+UPLOAD_JS = """
+<script>
+document.getElementById('img').addEventListener('change', async (ev) => {
+  const file = ev.target.files[0]; if (!file) return;
+  const fd = new FormData(); fd.append('image', file);
+  const r = await fetch('/upload', {method: 'POST', body: fd});
+  const t = document.getElementById('body'), msg = document.getElementById('imgmsg');
+  if (!r.ok) { msg.textContent = await r.text(); return; }
+  const md = '\\n![Descripció](' + (await r.text()) + ')\\n';
+  t.setRangeText(md, t.selectionStart, t.selectionEnd, 'end'); t.focus();
+  msg.textContent = 'Imatge afegida. Edita la descripció.'; ev.target.value = '';
+});
+</script>"""
+
+
+def note_form_html(slug="", body="", draft=False):
+    """Form for short Miscel·lània notes (like a personal tweet)."""
+    title = "Edita la nota" if slug else "Nota ràpida (Miscel·lània)"
+    return f"""<h2>{title}</h2>
+<form method="post" action="/note">
+<input type="hidden" name="slug" value="{html.escape(slug)}">
+<textarea name="body" id="body" style="min-height:7rem" placeholder="Què tens al cap?" required>{html.escape(body)}</textarea>
+<div class="bar"><button name="action" value="publish">Publicar ara</button><button name="action" value="save">Desar</button>
+<label style="margin:0;font-weight:400"><input type="checkbox" name="draft"{" checked" if draft else ""}> Esborrany</label>
+<input type="file" id="img" accept="image/*"><small id="imgmsg">Afegeix una imatge</small></div>
+</form>{UPLOAD_JS}"""
+
+
+def note_page(slug, msg=None, ok=True):
+    meta, body = read_post(find_post("miscellania", slug))
+    return page("Edita la nota", note_form_html(slug, body, meta["draft"]), msg, ok)
+
+
 def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
     if form:
         meta, body = form
@@ -176,6 +216,7 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
     options = "".join(
         f'<option value="{k}"{" selected" if k == section else ""}>{v}</option>'
         for k, v in SECTIONS.items()
+        if k != "miscellania"
     )
     lock = " disabled" if slug else ""
     hidden = f'<input type="hidden" name="section" value="{section}">' if slug else ""
@@ -235,7 +276,10 @@ class Handler(BaseHTTPRequestHandler):
             if url.path == "/":
                 self.send(index_page())
             elif url.path == "/edit":
-                self.send(edit_page(q.get("section", "escrits"), q.get("slug", "")))
+                if q.get("section") == "miscellania" and q.get("slug"):
+                    self.send(note_page(q["slug"]))
+                else:
+                    self.send(edit_page(q.get("section", "escrits"), q.get("slug", "")))
             else:
                 self.send("No trobat", 404)
         except (ValueError, OSError) as exc:
@@ -251,6 +295,8 @@ class Handler(BaseHTTPRequestHandler):
                 form = {k: v[0] for k, v in parse_qs(self.body().decode("utf-8"), keep_blank_values=True).items()}
                 if self.path == "/save":
                     self.save(form)
+                elif self.path == "/note":
+                    self.note(form)
                 elif self.path == "/publish":
                     ok, log = publish(form.get("message", "").strip())
                     self.send(index_page(log, ok), 200 if ok else 500)
@@ -280,6 +326,26 @@ class Handler(BaseHTTPRequestHandler):
         except ValueError as exc:
             return self.send(edit_page(section if section in SECTIONS else "escrits", "", str(exc), False, (meta, body)), 400)
         self.send(edit_page(section, slug, "Desat. Quan estiguis a punt, publica des de la pàgina principal."))
+
+    def note(self, form):
+        body = form.get("body", "").strip()
+        if not body:
+            return self.send(index_page("La nota és buida.", ok=False), 400)
+        slug = form.get("slug", "")
+        meta = {"title": "", "description": "", "draft": "draft" in form}
+        if slug:
+            meta["date"] = read_post(find_post("miscellania", slug))[0]["date"]
+        else:
+            now = datetime.now().astimezone()
+            meta["date"] = now.isoformat(timespec="minutes")
+            slug = now.strftime("%Y-%m-%d-%H%M%S")
+            while any(p.exists() for p in post_paths("miscellania", slug)):
+                slug += "-2"
+        save_post("miscellania", slug, meta, body)
+        if form.get("action") == "publish" and not meta["draft"]:
+            ok, log = publish("Nova nota a Miscel·lània")
+            return self.send(index_page(log, ok), 200 if ok else 500)
+        self.send(index_page("Nota desada."))
 
     def upload(self):
         ctype = self.headers.get("Content-Type", "")

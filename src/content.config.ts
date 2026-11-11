@@ -23,9 +23,10 @@ const projectes = defineCollection({
   schema,
 });
 
+// Notes curtes, sense títol obligatori (estil «tuit»).
 const miscellania = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/miscellania' }),
-  schema,
+  schema: schema.extend({ title: z.string().optional() }),
 });
 
 export const collections = { escrits, lectures, projectes, miscellania };

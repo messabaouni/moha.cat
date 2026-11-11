@@ -1,11 +1,11 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
 import { render } from 'astro:content';
-import { sections, sectionKeys, getPublished, formatDate } from '../../lib/content';
+import { sections, sectionKeys, isFeed, getPublished, formatDate } from '../../lib/content';
 
 export async function getStaticPaths() {
   const paths = await Promise.all(
-    sectionKeys.map(async (section) => {
+    sectionKeys.filter((s) => !isFeed(s)).map(async (section) => {
       const posts = await getPublished(section);
       return posts.map((post) => ({ params: { section, id: post.id }, props: { post } }));
     }),
