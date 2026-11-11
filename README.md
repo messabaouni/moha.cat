@@ -7,8 +7,7 @@ Web personal en català, construïda amb Astro. Els continguts s'escriuen en fit
 - `src/content/escrits/` — articles, assajos, relats i apunts.
 - `src/content/lectures/` — notes sobre llibres i lectures.
 - `src/content/projectes/` — projectes personals i professionals.
-- `public/images/` — imatges que pots inserir als articles.
-
+- 
 ## Crear un article
 
 Crea un fitxer `.md` dins de la carpeta corresponent, per exemple `src/content/escrits/el-meu-article.md`:
@@ -52,18 +51,3 @@ npm run build
 npm run preview
 ```
 
-## Publicar amb GitHub
-
-1. Crea un repositori a GitHub, per exemple `moha.cat`.
-2. Puja tots els fitxers d'aquest projecte.
-3. A Cloudflare Pages, connecta el compte de GitHub i selecciona el repositori.
-4. Configura:
-   - Framework preset: Astro
-   - Build command: `npm run build`
-   - Build output directory: `dist`
-5. Desa i desplega.
-6. A Cloudflare Pages → Custom domains, afegeix `moha.cat`.
-
-Cada vegada que facis `commit` i `push` a la branca principal, Cloudflare tornarà a construir i publicar la web.
-
-Abans de canviar els nameservers del domini a SWPanel, comprova si utilitzes correu amb `@moha.cat` i conserva els registres MX, SPF, DKIM i DMARC.
