@@ -29,7 +29,7 @@ Per escriure i publicar sense tocar codi ni git:
 python3 scripts/editor.py
 ```
 
-Obre `http://127.0.0.1:8765`. Des d'allà pots crear i editar entrades, marcar-les com a esborrany, pujar imatges i prémer **Publicar al web**, que fa `commit`, `pull --rebase` i `push` de `src/content` i `public/images`. Només necessita Python 3 i `git` configurat amb accés al repositori. Les entrades noves es creen com a esborrany.
+Obre `http://127.0.0.1:8765`. Des d'allà pots crear i editar entrades, marcar-les com a esborrany, pujar imatges i prémer **Publicar al web**, que fa `commit`, `pull --rebase` i `push` de `src/content` i `public/images`. Només necessita Python 3 i `git` configurat amb accés al repositori. Les entrades noves es creen com a esborrany. Els esborranys es desen a `drafts/` (ignorada per git), per tant no es pugen a GitHub fins que desmarques «Esborrany» i les publiques.
 
 ## Crear un article
 
@@ -46,7 +46,7 @@ draft: false
 Comença a escriure aquí...
 ```
 
-Per deixar un article sense publicar, posa `draft: true`. Quan estigui a punt, canvia-ho a `false`.
+Per deixar un article sense publicar, desa'l a `drafts/<secció>/` (carpeta ignorada per git, només al teu ordinador). Quan estigui a punt, mou-lo a `src/content/<secció>/`. L'editor local ho fa automàticament amb la casella «Esborrany».
 
 ## Afegir una imatge
 

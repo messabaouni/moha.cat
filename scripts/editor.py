@@ -20,6 +20,7 @@ from urllib.parse import parse_qs, quote, urlparse
 
 REPO = Path(__file__).resolve().parents[1]
 CONTENT = REPO / "src/content"
+DRAFTS = REPO / "drafts"  # ignorat per git: els esborranys no surten del teu ordinador
 IMAGES = REPO / "public/images"
 SECTIONS = {
     "escrits": "Escrits",
@@ -70,11 +71,24 @@ def write_post(path, meta, body):
     path.write_text("\n".join(lines), encoding="utf-8")
 
 
-def resolve_post(section, slug):
-    """Return a safe path inside src/content/<section>/ or raise ValueError."""
+def post_paths(section, slug):
+    """Return (published_path, draft_path) for a post or raise ValueError."""
     if section not in SECTIONS or slug != slugify(slug):
         raise ValueError("Ruta no vàlida")
-    return CONTENT / section / f"{slug}.md"
+    return CONTENT / section / f"{slug}.md", DRAFTS / section / f"{slug}.md"
+
+
+def find_post(section, slug):
+    published, draft = post_paths(section, slug)
+    return published if published.exists() else draft
+
+
+def save_post(section, slug, meta, body):
+    """Write drafts to drafts/ (untracked) and published posts to src/content/."""
+    published, draft = post_paths(section, slug)
+    target, other = (draft, published) if meta["draft"] else (published, draft)
+    write_post(target, meta, body)
+    other.unlink(missing_ok=True)
 
 
 def git(*args):
@@ -127,7 +141,10 @@ def page(title, body, msg=None, ok=True):
 def index_page(msg=None, ok=True):
     out = ['<p><a href="/edit">+ Nou contingut</a></p>']
     for section, label in SECTIONS.items():
-        posts = sorted((CONTENT / section).glob("*.md"), reverse=True) if (CONTENT / section).exists() else []
+        posts = sorted(
+            [*(CONTENT / section).glob("*.md"), *(DRAFTS / section).glob("*.md")],
+            key=lambda p: p.stem,
+        )
         items = []
         for p in posts:
             meta, _ = read_post(p)
@@ -143,7 +160,7 @@ def index_page(msg=None, ok=True):
 <label>Missatge del commit (opcional)</label>
 <input type="text" name="message" placeholder="Nou escrit: ...">
 <div class="bar"><button>Publicar al web</button>
-<small>Fa commit i push de tots els canvis a src/content i public/images.</small></div></form>"""
+<small>Fa commit i push dels canvis a src/content i public/images. Els esborranys no es pugen.</small></div></form>"""
     )
     return page("Editor", "".join(out), msg, ok)
 
@@ -152,7 +169,7 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
     if form:
         meta, body = form
     elif slug:
-        meta, body = read_post(resolve_post(section, slug))
+        meta, body = read_post(find_post(section, slug))
     else:
         meta = {"title": "", "date": date.today().isoformat(), "description": "", "draft": True}
         body = ""
@@ -170,7 +187,7 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
 <div><label>Data</label><input type="date" name="date" value="{e(str(meta['date']))}" required></div></div>
 <label>Títol</label><input type="text" name="title" value="{e(meta['title'])}" required>
 <label>Descripció (opcional)</label><input type="text" name="description" value="{e(meta['description'])}">
-<label><input type="checkbox" name="draft"{" checked" if meta['draft'] else ""}> Esborrany (no es mostra al web)</label>
+<label><input type="checkbox" name="draft"{" checked" if meta['draft'] else ""}> Esborrany (només al teu ordinador, no es puja a GitHub)</label>
 <label>Text (Markdown)</label><textarea name="body" id="body">{e(body)}</textarea>
 <div class="bar"><button>Desar</button>
 <input type="file" id="img" accept="image/*"><small id="imgmsg">Afegeix una imatge al text</small></div>
@@ -257,9 +274,9 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError("Cal un títol i una data vàlida.")
             if not slug:
                 slug = slugify(title)
-                if resolve_post(section, slug).exists():
+                if any(p.exists() for p in post_paths(section, slug)):
                     raise ValueError(f"Ja existeix «{slug}» a {SECTIONS[section]}.")
-            write_post(resolve_post(section, slug), meta, body)
+            save_post(section, slug, meta, body)
         except ValueError as exc:
             return self.send(edit_page(section if section in SECTIONS else "escrits", "", str(exc), False, (meta, body)), 400)
         self.send(edit_page(section, slug, "Desat. Quan estiguis a punt, publica des de la pàgina principal."))

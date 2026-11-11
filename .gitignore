@@ -2,3 +2,6 @@ node_modules
 scripts/odt_config.local.sh
 dist
 .astro
+
+# Esborranys locals (no es publiquen)
+drafts/
