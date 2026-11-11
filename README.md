@@ -74,3 +74,7 @@ npm run build
 npm run preview
 ```
 
+
+## Nota sobre l'autoria
+
+Per ser honest: la major part del codi d'aquest projecte ha estat generada amb eines d'intel·ligència artificial. Tot i això, l'he revisat i l'he acceptat jo, i en soc el responsable. Els textos publicats al web són meus.
