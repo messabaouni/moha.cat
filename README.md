@@ -7,7 +7,30 @@ Web personal en català, construïda amb Astro. Els continguts s'escriuen en fit
 - `src/content/escrits/` — articles, assajos, relats i apunts.
 - `src/content/lectures/` — notes sobre llibres i lectures.
 - `src/content/projectes/` — projectes personals i professionals.
-- 
+- `src/content/miscellania/` — fotografies, música, vídeos i enllaços.
+- `public/images/` — imatges que pots inserir als articles.
+
+## Estructura del codi
+
+- `src/pages/index.astro` — pàgina d'inici.
+- `src/pages/[section]/` — llistat i pàgina de cada contingut, compartits per totes les seccions.
+- `src/lib/content.ts` — configuració de les seccions (textos, rutes) i funcions comunes.
+- `src/components/` — capçalera, peu, «Sobre mi» i llista d'entrades.
+- `src/layouts/MainLayout.astro` — plantilla base de les pàgines.
+- `scripts/editor.py` — editor local (vegeu a sota).
+
+Per afegir una secció nova, defineix-la a `src/lib/content.ts` i a `src/content.config.ts`, i afegeix-la al menú de `Header.astro`.
+
+## Editor local (Python)
+
+Per escriure i publicar sense tocar codi ni git:
+
+```bash
+python3 scripts/editor.py
+```
+
+Obre `http://127.0.0.1:8765`. Des d'allà pots crear i editar entrades, marcar-les com a esborrany, pujar imatges i prémer **Publicar al web**, que fa `commit`, `pull --rebase` i `push` de `src/content` i `public/images`. Només necessita Python 3 i `git` configurat amb accés al repositori. Les entrades noves es creen com a esborrany.
+
 ## Crear un article
 
 Crea un fitxer `.md` dins de la carpeta corresponent, per exemple `src/content/escrits/el-meu-article.md`:
