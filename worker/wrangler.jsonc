@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "moha-cat-notes",
+  "main": "src/index.js",
+  "compatibility_date": "2025-01-01",
+  "vars": {
+    "GITHUB_REPO": "messabaouni/moha.cat",
+    "GITHUB_BRANCH": "main"
+  }
+}
