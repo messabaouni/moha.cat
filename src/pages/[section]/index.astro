@@ -1,0 +1,25 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import PostList from '../../components/PostList.astro';
+import { sections, sectionKeys, getPublished } from '../../lib/content';
+
+export function getStaticPaths() {
+  return sectionKeys.map((section) => ({ params: { section } }));
+}
+
+const { section } = Astro.params;
+const info = sections[section];
+const posts = await getPublished(section);
+---
+<MainLayout title={`${info.name} — Moha`} description={info.description}>
+  <section class="page-title">
+    <p class="eyebrow">{info.eyebrow}</p>
+    <h1>{info.name}</h1>
+    <p class="lead">{info.lead}</p>
+  </section>
+  <section class="archive-section" aria-label={info.listLabel}>
+    <div class="section-body">
+      <PostList posts={posts} base={section} empty={info.empty} />
+    </div>
+  </section>
+</MainLayout>

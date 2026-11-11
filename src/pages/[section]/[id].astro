@@ -1,0 +1,29 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import { render } from 'astro:content';
+import { sections, sectionKeys, getPublished, formatDate } from '../../lib/content';
+
+export async function getStaticPaths() {
+  const paths = await Promise.all(
+    sectionKeys.map(async (section) => {
+      const posts = await getPublished(section);
+      return posts.map((post) => ({ params: { section, id: post.id }, props: { post } }));
+    }),
+  );
+  return paths.flat();
+}
+
+const { section } = Astro.params;
+const { post } = Astro.props;
+const info = sections[section];
+const { Content } = await render(post);
+---
+<MainLayout title={`${post.data.title} — ${info.name}`} description={post.data.description ?? post.data.title}>
+  <article class="article">
+    <a class="back-link" href={`/${section}/`}>← {info.backLabel}</a>
+    <p class="eyebrow">{formatDate(post.data.date)}</p>
+    <h1>{post.data.title}</h1>
+    {post.data.description && <p class="lead article-lead">{post.data.description}</p>}
+    <div class="prose"><Content /></div>
+  </article>
+</MainLayout>

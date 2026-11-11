@@ -1,0 +1,18 @@
+---
+import { formatDate } from '../lib/content';
+
+const { posts, base, empty } = Astro.props;
+---
+{posts.length ? (
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li>
+        <div>
+          <a href={`/${base}/${post.id}/`}>{post.data.title}</a>
+          {post.data.description && <p class="post-description">{post.data.description}</p>}
+        </div>
+        <time>{formatDate(post.data.date, 'short')}</time>
+      </li>
+    ))}
+  </ul>
+) : <p class="muted">{empty}</p>}
