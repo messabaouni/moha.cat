@@ -12,21 +12,21 @@ La nota només es publica si:
 
 ## Instal·lació (una sola vegada)
 
-1. A `wrangler.jsonc`, comprova `ALLOWED_SENDER` (el teu correu).
-2. Escull una adreça secreta, per exemple `nota-k7x2q9m4@moha.cat`. No la posis mai al codi: es desa com a secret (pas 3).
-3. A GitHub → Settings → Developer settings → Fine-grained tokens, crea un token **només per a aquest repositori** amb **Contents: Read and write**.
-4. Des d'aquesta carpeta (cada comanda demana el valor; el nom ja és a la comanda):
+1. Escull una adreça secreta, per exemple `nota-k7x2q9m4@moha.cat`. No la posis mai al codi: es desa com a secret (pas 3).
+2. A GitHub → Settings → Developer settings → Fine-grained tokens, crea un token **només per a aquest repositori** amb **Contents: Read and write**.
+3. Des d'aquesta carpeta (cada comanda demana el valor; el nom ja és a la comanda):
 
 ```bash
 cd worker
 npm install
 npx wrangler login
 npx wrangler secret put GITHUB_TOKEN    # enganxa el token de GitHub
-npx wrangler secret put NOTE_ADDRESS    # l'adreça secreta del pas 2
+npx wrangler secret put NOTE_ADDRESS    # l'adreça secreta del pas 1
+npx wrangler secret put ALLOWED_SENDER  # el teu correu, p. ex. el de Gmail
 npx wrangler deploy
 ```
 
-5. Al tauler de Cloudflare → `moha.cat` → **Email → Email Routing**: activa-ho (afegirà els registres MX) i crea una **adreça personalitzada** amb el mateix valor que `NOTE_ADDRESS`, acció **Send to a Worker** → `moha-cat-notes`.
+4. Al tauler de Cloudflare → `moha.cat` → **Email → Email Routing**: activa-ho (afegirà els registres MX) i crea una **adreça personalitzada** amb el mateix valor que `NOTE_ADDRESS`, acció **Send to a Worker** → `moha-cat-notes`.
 
 ## Ús
 
