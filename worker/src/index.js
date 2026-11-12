@@ -29,6 +29,9 @@ const same = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCase();
 
 export default {
   async email(message, env) {
+    for (const key of ['NOTE_ADDRESS', 'ALLOWED_SENDER', 'GITHUB_TOKEN']) {
+      if (!env[key]) throw new Error(`Falta el secret ${key}`);
+    }
     if (!same(message.to, env.NOTE_ADDRESS) || !same(message.from, env.ALLOWED_SENDER)) {
       message.setReject('Adreça no autoritzada');
       return;
