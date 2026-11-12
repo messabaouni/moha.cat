@@ -38,8 +38,9 @@ export default {
     }
 
     // Cloudflare afegeix aquesta capçalera; evita remitents falsificats.
+    // SPF es valida contra el remitent del sobre (message.from), que ja hem comparat.
     const auth = message.headers.get('authentication-results') ?? '';
-    if (!/dmarc=pass|dkim=pass|spf=pass/i.test(auth)) {
+    if (!/\bspf=pass\b/i.test(auth)) {
       message.setReject('Autenticació del remitent no vàlida');
       return;
     }

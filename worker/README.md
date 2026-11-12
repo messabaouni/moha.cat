@@ -8,7 +8,7 @@ La nota només es publica si:
 
 1. el correu arriba a `NOTE_ADDRESS` (secret de Cloudflare: una adreça llarga i impossible d'endevinar),
 2. el remitent és `ALLOWED_SENDER`, i
-3. Cloudflare ha verificat el remitent (SPF/DKIM/DMARC).
+3. Cloudflare ha verificat el remitent amb SPF.
 
 ## Instal·lació (una sola vegada)
 
