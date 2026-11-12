@@ -16,7 +16,7 @@ const actualitzacions = (
   )
 )
   .flat()
-  .sort(byDateDesc)
+  .sort((a, b) => byDateDesc(a, b) || a.title.localeCompare(b.title, 'ca'))
   .slice(0, 5);
 ---
 <MainLayout title="Moha" description="Dades, lectures i escrits de Moha, a Barcelona.">
