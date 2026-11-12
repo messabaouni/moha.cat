@@ -133,14 +133,63 @@ button{padding:.5rem 1rem;font:inherit;cursor:pointer}
 .err{background:#fbe9e9;border-color:#c33}
 ul{padding-left:1.2rem} .tag{font-size:.8rem;background:#eee;padding:0 .4rem;border-radius:3px}
 .bar{display:flex;gap:.6rem;align-items:center;margin-top:1rem;flex-wrap:wrap}
+body:has(.writing-area){max-width:76rem}
+.writing-area{display:grid;grid-template-columns:minmax(0,1fr) 21rem;gap:1.5rem;align-items:start}
+.writing-area textarea{min-width:0;resize:vertical}
+.reference{position:sticky;top:1rem;max-height:85vh;overflow:auto;border-left:1px solid #ccc;padding-left:1rem;font-size:.875rem}
+.reference summary{cursor:pointer;font-weight:600;padding:.4rem 0}
+.reference h3{font-size:.875rem;margin:1rem 0 .3rem}
+.reference pre{margin:.3rem 0 .8rem;padding:.6rem;background:#f3f4f4;white-space:pre-wrap;overflow-wrap:anywhere}
+.reference p{margin:.5rem 0;color:#555}
+@media(max-width:850px){.writing-area{grid-template-columns:minmax(0,1fr)}.reference{position:static;max-height:none;border-left:0;border-top:1px solid #ccc;padding: .5rem 0}.row{flex-wrap:wrap}.row>div{min-width:12rem}}
 """
 
 
 def page(title, body, msg=None, ok=True):
     note = f'<div class="msg{"" if ok else " err"}">{html.escape(msg)}</div>' if msg else ""
     return f"""<!doctype html><html lang="ca"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(title)}</title><style>{STYLE}</style>
 <h1><a href="/" style="text-decoration:none">✎ Editor moha.cat</a></h1>{note}{body}</html>"""
+
+
+def markdown_reference_html():
+    groups = [
+        ("Format bàsic", [
+            ("Títols i paràgrafs", "# Títol\n## Apartat\n### Subapartat\n\nUn paràgraf.\n\nUn altre paràgraf."),
+            ("Èmfasi", "**negreta** · *cursiva* · ~~ratllat~~\n`codi en línia`"),
+            ("Llistes i citacions", "- Element\n- Un altre element\n\n1. Primer\n2. Segon\n\n> Una citació\n\n---"),
+            ("Enllaços i imatges", "[Text de l'enllaç](https://exemple.cat)\n![Descripció de la imatge](/images/foto.jpg)"),
+            ("Taules", "| Columna A | Columna B |\n| --- | --- |\n| Valor | Valor |"),
+            ("Caràcters literals", r"\*sense cursiva\* · \$ · \#"),
+        ]),
+        ("Fórmules (LaTeX)", [
+            ("En línia i en bloc", "$E = mc^2$\n\n$$\nx = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\n$$"),
+            ("Ordres habituals", r"x^2 · x_{ij} · \frac{a}{b} · \sqrt{x}" "\n" r"\alpha · \beta · \theta · \pi · \infty" "\n" r"\times · \cdot · \leq · \geq · \neq"),
+            ("Sumes, integrals i text", r"\sum_{i=1}^{n} x_i" "\n" r"\int_0^1 f(x)\,dx" "\n" r"\text{mitjana} = \frac{1}{n}\sum_{i=1}^n x_i"),
+            ("Equacions alineades", "$$\n" r"\begin{aligned}" "\n" r"a &= b + c \\" "\n" r"d &= e + f" "\n" r"\end{aligned}" "\n$$"),
+        ]),
+        ("Codi i R Markdown", [
+            ("Bloc de codi Markdown", "```r\nmean(c(1, 2, 3))\n```"),
+            ("Chunk de R Markdown (.Rmd)", "```{r, echo=TRUE, eval=TRUE}\nsummary(cars)\nplot(cars)\n```"),
+            ("R en línia (.Rmd)", "La mitjana és `r mean(c(1, 2, 3))`."),
+            ("Opcions de chunk (.Rmd)", "echo=FALSE     # Amaga el codi\neval=FALSE     # No executa el codi\ninclude=FALSE  # Amaga codi i resultats\nwarning=FALSE  # Amaga avisos\nmessage=FALSE  # Amaga missatges"),
+        ]),
+    ]
+    sections = []
+    for title, examples in groups:
+        content = "".join(
+            f"<h3>{html.escape(label)}</h3><pre><code>{html.escape(example)}</code></pre>"
+            for label, example in examples
+        )
+        sections.append(f"<details open><summary>{html.escape(title)}</summary>{content}</details>")
+    return (
+        '<aside class="reference" aria-label="Referència de sintaxi">'
+        '<details open><summary>Referència Markdown / R Markdown</summary>'
+        '<p>Les fórmules són sintaxi LaTeX: el web encara no les renderitza. '
+        'Els exemples .Rmd són de consulta; aquest editor desa Markdown (.md) i no executa R.</p>'
+        + "".join(sections) + '</details></aside>'
+    )
 
 
 def index_page(msg=None, ok=True):
@@ -193,10 +242,12 @@ def note_form_html(slug="", body="", draft=False):
     return f"""<h2>{title}</h2>
 <form method="post" action="/note">
 <input type="hidden" name="slug" value="{html.escape(slug)}">
-<textarea name="body" id="body" style="min-height:7rem" placeholder="Què tens al cap?" required>{html.escape(body)}</textarea>
+<div class="writing-area"><div>
+<textarea name="body" id="body" aria-label="Text de la nota" style="min-height:7rem" placeholder="Què tens al cap?" required>{html.escape(body)}</textarea>
 <div class="bar"><button name="action" value="publish">Publicar ara</button><button name="action" value="save">Desar</button>
 <label style="margin:0;font-weight:400"><input type="checkbox" name="draft"{" checked" if draft else ""}> Esborrany</label>
 <input type="file" id="img" accept="image/*"><small id="imgmsg">Afegeix una imatge</small></div>
+</div>{markdown_reference_html()}</div>
 </form>{UPLOAD_JS}"""
 
 
@@ -229,9 +280,11 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
 <label>Títol</label><input type="text" name="title" value="{e(meta['title'])}" required>
 <label>Descripció (opcional)</label><input type="text" name="description" value="{e(meta['description'])}">
 <label><input type="checkbox" name="draft"{" checked" if meta['draft'] else ""}> Esborrany (només al teu ordinador, no es puja a GitHub)</label>
-<label>Text (Markdown)</label><textarea name="body" id="body">{e(body)}</textarea>
+<label for="body">Text (Markdown)</label><div class="writing-area"><div>
+<textarea name="body" id="body">{e(body)}</textarea>
 <div class="bar"><button>Desar</button>
 <input type="file" id="img" accept="image/*"><small id="imgmsg">Afegeix una imatge al text</small></div>
+</div>{markdown_reference_html()}</div>
 </form>
 <script>
 document.getElementById('img').addEventListener('change', async (ev) => {{
