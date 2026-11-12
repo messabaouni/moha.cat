@@ -33,7 +33,7 @@ const actualitzacions = (
     <div class="section-heading"><h2>Recentment</h2></div>
     <div class="section-body">
       {actualitzacions.length > 0 ? (
-        <ul class="post-list">
+        <ul class="post-list recently-list">
           {actualitzacions.map((item) => <li><a class="recently-title" href={item.href}>{item.title}</a><span>{item.seccio}</span><time>{formatDate(item.data.date)}</time></li>)}
         </ul>
       ) : <p class="muted">Les últimes publicacions apareixeran aquí.</p>}

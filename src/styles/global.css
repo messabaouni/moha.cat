@@ -56,6 +56,9 @@ h2 { font-size:21px; font-weight:400; line-height:1.4; margin:0; }
   .lead { font-size:17px; }
   .post-list li { gap:10px; }
   time { font-size:10px; }
+  .recently-list li { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:start; gap:4px 12px; }
+  .recently-list .recently-title { grid-column:1 / -1; overflow:visible; overflow-wrap:anywhere; text-overflow:clip; white-space:normal; }
+  .recently-list li > span { color:var(--muted); font-family:var(--mono); font-size:10px; }
 }
 .feed { max-width:650px; }
 .note { padding:22px 0; border-bottom:1px dotted var(--line); }
