@@ -46,6 +46,8 @@ draft: false
 Comença a escriure aquí...
 ```
 
+Les lectures es mostren com a portades clicables que obren la fitxa del llibre. A `src/content/lectures/`, pots afegir `author` i `cover` al front matter; `cover` ha de ser la ruta d'una imatge des de `public/` (per exemple, `/images/portada.jpg`). Si no hi ha imatge, es mostra una portada tipogràfica amb el títol i l'autor.
+
 Per deixar un article sense publicar, desa'l a `drafts/<secció>/` (carpeta ignorada per git, només al teu ordinador). Quan estigui a punt, mou-lo a `src/content/<secció>/`. L'editor local ho fa automàticament amb la casella «Esborrany».
 
 ## Afegir una imatge

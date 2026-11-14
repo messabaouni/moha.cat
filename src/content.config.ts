@@ -15,7 +15,10 @@ const escrits = defineCollection({
 
 const lectures = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/lectures' }),
-  schema,
+  schema: schema.extend({
+    author: z.string().optional(),
+    cover: z.string().optional(),
+  }),
 });
 
 const projectes = defineCollection({

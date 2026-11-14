@@ -1,6 +1,7 @@
 ---
 import MainLayout from '../../layouts/MainLayout.astro';
 import PostList from '../../components/PostList.astro';
+import BookList from '../../components/BookList.astro';
 import Feed from '../../components/Feed.astro';
 import { sections, sectionKeys, isFeed, getPublished } from '../../lib/content';
 
@@ -22,6 +23,8 @@ const posts = await getPublished(section);
     <div class="section-body">
       {isFeed(section)
         ? <Feed posts={posts} empty={info.empty} />
+        : section === 'lectures'
+          ? <BookList posts={posts} base={section} empty={info.empty} />
         : <PostList posts={posts} base={section} empty={info.empty} />}
     </div>
   </section>

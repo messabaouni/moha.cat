@@ -1,0 +1,29 @@
+---
+import { formatDate } from '../lib/content';
+
+const { posts, base, empty } = Astro.props;
+---
+{posts.length ? (
+  <ul class="book-grid">
+    {posts.map((post) => (
+      <li class="book-card">
+        <a class="book-link" href={`/${base}/${post.id}/`} aria-label={`Obre l'article «${post.data.title}»`}>
+          {post.data.cover ? (
+            <img class="book-cover-image" src={post.data.cover} alt="" />
+          ) : (
+            <div class="book-cover book-cover--typographic" aria-hidden="true">
+              <span class="book-cover-label">LECTURES</span>
+              <span class="book-cover-title">{post.data.title}</span>
+              <span class="book-cover-author">{post.data.author}</span>
+            </div>
+          )}
+          <div class="book-meta">
+            <h2>{post.data.title}</h2>
+            {post.data.author && <p class="book-author">{post.data.author}</p>}
+            <time>{formatDate(post.data.date, 'short')}</time>
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+) : <p class="muted">{empty}</p>}

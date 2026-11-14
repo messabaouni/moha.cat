@@ -34,6 +34,22 @@ h2 { font-size:21px; font-weight:400; line-height:1.4; margin:0; }
 .archive-section { display:block; padding:30px 0 55px; border-top:1px solid var(--line); }
 .post-list { margin-top:0; }
 .post-list li a { font-size:16px; }
+.book-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:30px 24px; list-style:none; padding:0; margin:0; }
+.book-card { min-width:0; }
+.book-link { display:block; color:var(--ink); text-decoration:none; }
+.book-cover { display:flex; aspect-ratio:2 / 3; flex-direction:column; justify-content:space-between; padding:16px; border:1px solid #d6d1c5; background:#e9e4d8; box-shadow:2px 3px 8px #24231f14; }
+.book-cover-image { display:block; width:100%; aspect-ratio:2 / 3; object-fit:cover; border:1px solid #d6d1c5; box-shadow:2px 3px 8px #24231f14; transition:transform .15s ease,box-shadow .15s ease; }
+.book-cover--typographic { color:#26383a; background:radial-gradient(ellipse at 85% 22%,#c9b394 0 10%,transparent 10.5%),linear-gradient(155deg,#e8e1d1,#d4cbb9); }
+.book-cover-label { font-family:var(--mono); font-size:9px; letter-spacing:.12em; }
+.book-cover-title { max-width:13ch; font-size:19px; line-height:1.35; }
+.book-cover-author { font-size:12px; }
+.book-meta { padding-top:11px; }
+.book-meta h2 { font-size:16px; }
+.book-author { color:var(--muted); font-size:13px; margin:2px 0 4px; }
+.book-meta time { font-size:10px; }
+.book-link:hover .book-cover,.book-link:hover .book-cover-image { transform:translateY(-2px); box-shadow:3px 6px 12px #24231f20; }
+.book-cover { transition:transform .15s ease,box-shadow .15s ease; }
+.book-link:focus-visible { outline:2px solid var(--link); outline-offset:4px; }
 .recently-title { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .post-description { color:var(--muted); font-size:13px; margin:3px 0 0 !important; }
 .muted { color:var(--muted); }
