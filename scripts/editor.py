@@ -39,7 +39,7 @@ def slugify(text):
 
 def read_post(path):
     raw = path.read_text(encoding="utf-8")
-    meta = {"title": path.stem, "date": "", "description": "", "draft": False}
+    meta = {"title": path.stem, "date": "", "description": "", "draft": False, "author": "", "cover": ""}
     body = raw
     m = re.match(r"^---\n(.*?)\n---\n?(.*)$", raw, re.S)
     if m:
@@ -64,6 +64,9 @@ def write_post(path, meta, body):
     lines.append(f"date: {meta['date']}")
     if meta["description"]:
         lines.append(f"description: {json.dumps(meta['description'], ensure_ascii=False)}")
+    for key in ("author", "cover"):
+        if meta.get(key):
+            lines.append(f"{key}: {json.dumps(meta[key], ensure_ascii=False)}")
     lines.append(f"draft: {'true' if meta['draft'] else 'false'}")
     lines += ["---", "", body.strip().replace("\r\n", "\n"), ""]
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -262,7 +265,7 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
     elif slug:
         meta, body = read_post(find_post(section, slug))
     else:
-        meta = {"title": "", "date": date.today().isoformat(), "description": "", "draft": True}
+        meta = {"title": "", "date": date.today().isoformat(), "description": "", "draft": True, "author": "", "cover": ""}
         body = ""
     options = "".join(
         f'<option value="{k}"{" selected" if k == section else ""}>{v}</option>'
@@ -279,6 +282,12 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
 <div><label>Data</label><input type="date" name="date" value="{e(str(meta['date']))}" required></div></div>
 <label>Títol</label><input type="text" name="title" value="{e(meta['title'])}" required>
 <label>Descripció (opcional)</label><input type="text" name="description" value="{e(meta['description'])}">
+<div id="book-fields"{" hidden" if section != "lectures" else ""}>
+<label for="author">Autor (opcional)</label><input type="text" id="author" name="author" value="{e(meta.get('author', ''))}">
+<label for="cover">Portada (opcional)</label><input type="text" id="cover" name="cover" value="{e(meta.get('cover', ''))}" placeholder="/images/portada.jpg">
+<label for="cover-file">Selecciona una imatge de portada</label>
+<input type="file" id="cover-file" accept="image/*"><small id="cover-msg" role="status">La imatge es desarà a public/images.</small>
+</div>
 <label><input type="checkbox" name="draft"{" checked" if meta['draft'] else ""}> Esborrany (només al teu ordinador, no es puja a GitHub)</label>
 <label for="body">Text (Markdown)</label><div class="writing-area"><div>
 <textarea name="body" id="body">{e(body)}</textarea>
@@ -287,6 +296,35 @@ def edit_page(section="escrits", slug="", msg=None, ok=True, form=None):
 </div>{markdown_reference_html()}</div>
 </form>
 <script>
+const sectionSelect = document.querySelector('select[name="section"]');
+sectionSelect.addEventListener('change', () => {{
+  document.getElementById('book-fields').hidden = sectionSelect.value !== 'lectures';
+}});
+document.getElementById('cover-file').addEventListener('change', async (ev) => {{
+  const file = ev.target.files[0]; if (!file) return;
+  const msg = document.getElementById('cover-msg');
+  const saveButton = document.querySelector('form[action="/save"] button');
+  const fd = new FormData(); fd.append('image', file);
+  saveButton.disabled = true;
+  ev.target.disabled = true;
+  msg.textContent = 'Pujant la portada...';
+  try {{
+    const r = await fetch('/upload', {{method: 'POST', body: fd}});
+    const text = await r.text();
+    if (!r.ok) {{ msg.textContent = text; return; }}
+    document.getElementById('cover').value = text;
+    msg.textContent = 'Portada afegida. Desa el contingut per conservar-la.';
+  }} catch (err) {{
+    msg.textContent = 'No s’ha pogut pujar la portada: ' + err.message;
+  }} finally {{
+    saveButton.disabled = false;
+    ev.target.disabled = false;
+    ev.target.value = '';
+  }}
+}});
+document.querySelector('form[action="/save"]').addEventListener('submit', (ev) => {{
+  if (document.getElementById('cover-file').disabled) ev.preventDefault();
+}});
 document.getElementById('img').addEventListener('change', async (ev) => {{
   const file = ev.target.files[0]; if (!file) return;
   const fd = new FormData(); fd.append('image', file);
@@ -367,6 +405,9 @@ class Handler(BaseHTTPRequestHandler):
             "description": form.get("description", "").strip(),
             "draft": "draft" in form,
         }
+        if section == "lectures":
+            meta["author"] = form.get("author", "").strip()
+            meta["cover"] = form.get("cover", "").strip()
         body = form.get("body", "")
         try:
             if not title or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", meta["date"]):
